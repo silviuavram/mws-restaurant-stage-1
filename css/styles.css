@@ -1,10 +1,4 @@
 @charset "utf-8";
-/* variables */
-:root {
-  --margin-right-item: 10px;
-  --min-width-item: 200px;
-}
-
 /* CSS Document */
 
 body,
@@ -127,7 +121,7 @@ nav h1 a {
 }
 /* ====================== Map ====================== */
 #map {
-  height: 400px;
+  height: 240px;
   width: 100%;
   background-color: #ccc;
 }
@@ -172,7 +166,8 @@ nav h1 a {
   display: flex;
   flex-wrap: wrap;
   padding: 0;
-  margin-right: calc(-1 * var(--margin-right-item));
+  justify-content: space-between;
+  flex-direction: row;
 }
 
 #restaurants-list li {
@@ -184,10 +179,8 @@ nav h1 a {
   /* padding: 0 30px 25px; */
   text-align: left;
   /* width: 270px; */
-  width: var(--min-width-item);
+  width: 100%;
   height: auto;
-  flex: auto;
-  margin-right: var(--margin-right-item);
 }
 
 #restaurants-list .restaurant-img {
@@ -319,15 +312,28 @@ nav h1 a {
   color: #666;
 }
 
-@media screen and (min-width:1150px) {
+@media screen and (min-width:410px) and (max-width:619px) {
   #restaurants-list li {
-    width: calc(1.4*var(--min-width-item));
+    width: calc(50% - 5px);
   }
 }
 
-@media screen and (min-width:740px) and (max-width:1149px) {
+@media screen and (min-width:620px) and (max-width:989px) {
   #restaurants-list li {
-    width: calc(1.2*var(--min-width-item));
+    width: calc(33.333% - 5px);
+  }
+  #map {
+    height: 320px;
+  }
+}
+
+@media screen and (min-width:990px) {
+  #restaurants-list li {
+    width: calc(25% - 5px);
+  }
+
+  #map {
+    height: 400px;
   }
 }
 
@@ -335,13 +341,5 @@ nav h1 a {
   body {
     width: 1310px;
     margin: auto;
-  }
-
-  #restaurants-list {
-    margin-right: 0;
-  }
-
-  #restaurants-list li:nth-child(4) {
-    margin-right: 0;
   }
 }
