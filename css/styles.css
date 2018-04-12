@@ -1,5 +1,22 @@
 @charset "utf-8";
+:root {
+  --header-height: 80px;
+  --header-nav-padding: 10px;
+
+  --filters-container-height: 80px;
+
+  --footer-height: 30px;
+  --footer-padding: 25px;
+
+  --map-container-height: calc(100% * 2 / 5);
+  --list-container-height: calc(100% * 3 / 5);
+}
+
 /* CSS Document */
+html {
+  height: 100%;
+  width: 100%;
+}
 
 body,
 td,
@@ -15,6 +32,8 @@ body {
   margin: 0;
   position: relative;
   min-width: 320px;
+  min-height: 800px;
+  height: 100%;
 }
 ul,
 li {
@@ -57,28 +76,35 @@ nav,
 section {
   display: block;
 }
+header {
+  height: var(--header-height);
+}
 #maincontent {
   background-color: #f3f3f3;
-  min-height: 100%;
+  /* min-height: 100%; */
+  height: calc(100% - var(--header-height) - var(--footer-height) - 2 * var(--footer-padding));
 }
 #footer {
   background-color: #444;
   color: #aaa;
   font-size: 8pt;
   letter-spacing: 1px;
-  padding: 25px;
+  padding: var(--footer-padding);
   text-align: center;
   text-transform: uppercase;
+  height: var(--footer-height);
 }
 /* ====================== Navigation ====================== */
 nav {
-  width: 100%;
-  height: 80px;
+  width: calc(100% - 2 * var(--header-nav-padding));
+  height: calc(100% - 2 * var(--header-nav-padding));
   background-color: #252831;
   text-align: center;
+  padding: var(--header-nav-padding);
 }
 nav h1 {
   margin: auto;
+  width: 300px;
 }
 nav h1 a {
   color: #fff;
@@ -120,15 +146,23 @@ nav h1 a {
   text-decoration: underline;
 }
 /* ====================== Map ====================== */
+#map-container {
+  height: var(--map-container-height);
+  width: 100%;
+}
 #map {
-  height: 240px;
+  height: 100%;
   width: 100%;
   background-color: #ccc;
 }
 /* ====================== Restaurant Filtering ====================== */
+#maincontent > section:nth-child(2) {
+  height: var(--list-container-height);
+  width: 100%;
+}
 .filter-options {
   width: 100%;
-  /* height: 50px; */
+  height: var(--filters-container-height);
   background-color: #3397db;
   align-items: center;
   display: flex;
@@ -154,6 +188,7 @@ nav h1 a {
   /* width: 200px; */
   min-width: 140px;
   width: calc(50% - 20px);
+  max-width: 210px;
 }
 
 /* ====================== Restaurant Listing ====================== */
@@ -166,6 +201,8 @@ nav h1 a {
   display: flex;
   flex-wrap: wrap;
   padding: 0;
+  height: calc(100% - var(--filters-container-height));
+  overflow: scroll;
 }
 
 #restaurants-list li {
@@ -179,16 +216,14 @@ nav h1 a {
   /* width: 270px; */
   width: 100%;
   height: auto;
-  margin-right: 10px;  
+  margin-right: 10px;
 }
 
 #restaurants-list .restaurant-img {
   background-color: #ccc;
   display: block;
   margin: 0;
-  max-width: 100%;
-  /* min-height: 248px; */
-  min-width: 100%;
+  width: 100%;
 }
 
 #restaurants-list li h1 {
@@ -333,20 +368,66 @@ nav h1 a {
   #restaurants-list li:nth-child(3n) {
     margin-right: 0;
   }
-  #map {
-    height: 320px;
+}
+@media screen and (min-width:620px) {
+  .filter-options h2 {
+    margin: 10px 0 10px 10px;
+  }
+  nav h1 {
+    width: 100%;
+  }
+  .filter-options h2 {
+    width: 120px;
+  }
+  :root {
+    --header-height: 50px;
+    --filters-container-height: 55px;
+    --footer-height: 15px;    
   }
 }
 
 @media screen and (min-width:990px) {
+  #maincontent {
+    display: flex;    
+  }
   #restaurants-list li {
-    width: calc(25% - 7.5px);
+    height: 150px;
+    width: 100%;
+    display: flex;
   }
   #restaurants-list li:nth-child(4n) {
     margin-right: 0;
   }
-  #map {
-    height: 400px;
+  .filter-options select {
+    max-width: 161px;
+  }
+  .restaurant-info {
+    height: 150px;
+    width: 100%;
+  }
+  #restaurants-list .restaurant-img {
+    height: 100%;
+    width: auto;
+  }
+  #map-container {
+    width: 50% - 5px;
+    margin-right: 5px;
+  }
+  #maincontent > section:nth-child(2) {
+    width: 50% - 5px;
+    margin-left: 5px;
+  }
+  #restaurants-list li {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  #restaurants-list li:last-child {
+    margin-bottom: 0;
+  }
+  :root {
+    --section-width: 50%;
+    --map-container-height: 100%;
+    --list-container-height: 100%;
   }
 }
 
