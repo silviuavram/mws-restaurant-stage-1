@@ -436,9 +436,15 @@ nav h1 a {
   .inside #map-container,
   #map-container {
     width: calc(50% - 5px);
-    margin: 0 0 5px 5px;
-    height: calc(50% - 5px);
+  }
+  .inside #map-container {
     order: 2;
+    height: calc(50% - 5px);
+    margin: 0 0 5px 5px;
+  }
+  #map-container {
+    height: 100%;
+    margin: 0 5px 0 0;
   }
   #restaurant-list-container {
     width: calc(50% - 5px);
