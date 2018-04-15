@@ -367,15 +367,14 @@ nav h1 a {
     margin-right: 0;
   }
 }
+
 @media screen and (min-width:620px) {
   .filter-options h2 {
     margin: 10px 0 10px 10px;
+    width: 120px;
   }
   nav h1 {
     width: 100%;
-  }
-  .filter-options h2 {
-    width: 120px;
   }
   .inside #map-container {
     height: calc(100% / 3 - 10px);
@@ -417,6 +416,8 @@ nav h1 a {
     height: 150px;
     width: 100%;
     display: flex;
+    margin-right: 0;
+    margin-bottom: 10px;
   }
   #restaurants-list li:nth-child(4n) {
     margin-right: 0;
@@ -425,8 +426,8 @@ nav h1 a {
     max-width: 161px;
   }
   .restaurant-info {
-    height: 150px;
     width: 100%;
+    height: 100%;
   }
   #restaurants-list .restaurant-img {
     height: 100%;
@@ -450,10 +451,6 @@ nav h1 a {
     width: calc(50% - 5px);
     margin-left: 5px;
     height: 100%;
-  }
-  #restaurants-list li {
-    margin-right: 0;
-    margin-bottom: 10px;
   }
   #restaurants-list li:last-child {
     margin-bottom: 0;
