@@ -154,6 +154,14 @@ class DBHelper {
   }
 
   /**
+   * Restaurant responsive image URL
+   */
+  static imgUrlSetForRestaurant(restaurant) {
+    const [first, fileName, fileExtension] = restaurant.photograph.match(/(\S+)\.(\w+)/);
+    return `/img/responsive/${fileName}-800-large.${fileExtension} 2x, /img/responsive/${fileName}-400-small.${fileExtension} 1x`;
+  }
+
+  /**
    * Map marker for a restaurant.
    */
   static mapMarkerForRestaurant(restaurant, map) {
