@@ -198,6 +198,7 @@ nav h1 a {
   padding: 0;
   height: calc(100% - var(--filters-container-height) - 10px);
   overflow: scroll;
+  align-content: flex-start;
 }
 
 #restaurants-list li {
