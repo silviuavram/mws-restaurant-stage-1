@@ -208,6 +208,8 @@ nav h1 a {
   width: 100%;
   height: auto;
   margin-right: 10px;
+  max-width: 400px;
+  flex: auto;
 }
 
 #restaurants-list .restaurant-img {
@@ -419,6 +421,7 @@ nav h1 a {
     display: flex;
     margin-right: 0;
     margin-bottom: 10px;
+    max-width: 100%;    
   }
   #restaurants-list li:nth-child(4n) {
     margin-right: 0;
