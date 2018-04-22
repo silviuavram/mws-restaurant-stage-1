@@ -2,27 +2,67 @@
 ---
 #### _Three Stage Course Material Project - Restaurant Reviews_
 
-## Project Overview: Stage 1
+# Responsiveness and styling
 
-For the **Restaurant Reviews** projects, you will incrementally convert a static webpage to a mobile-ready web application. In **Stage One**, you will take a static design that lacks accessibility and convert the design to be responsive on different sized displays and accessible for screen reader use. You will also add a service worker to begin the process of creating a seamless offline experience for your users.
+## Restaurants list
 
-### Specification
+### Overall style
 
-You have been provided the code for a restaurant reviews website. The code has a lot of issues. It’s barely usable on a desktop browser, much less a mobile device. It also doesn’t include any standard accessibility features, and it doesn’t work offline at all. Your job is to update the code to resolve these issues while still maintaining the included functionality. 
+I've given minimums on width and height for the website, 320px and 800px. From there I've styled top down by setting some height pixel values for footer and header, while giving the two container elements percentages minus the header and footer sizes. The width is, for start, 100% for everything. The restaurants list is scrollable on Y.
 
-### What do I do from here?
+### Breakpoints
 
-1. In this folder, start up a simple HTTP server to serve up the site files on your local computer. Python has some simple tools to do this, and you don't even need to know Python. For most people, it's already installed on your computer. 
+First worth mentioning are the two breakpoints that happen on restaurants list. On 410 and 620 width (starting width for each image is 200 px and margin between the items is 10px) I've increased the number of containers on each row to 2 and 3.
 
-In a terminal, check the version of Python you have: `python -V`. If you have Python 2.x, spin up the server with `python -m SimpleHTTPServer 8000` (or some other port, if port 8000 is already in use.) For Python 3.x, you can use `python3 -m http.server 8000`. If you don't have Python installed, navigate to Python's [website](https://www.python.org/) to download and install the software.
+On 620 breakpoint I've also modified the styling of header, footer and filter containers to give me more height and make use of the increased witdh. The height I've gained this way I've distributed it back to the map and restaurants containers by updating CSS variables in the calc() functions for their widths.
 
-2. With your server running, visit the site: `http://localhost:8000`, and look around for a bit to see what the current experience looks like.
-3. Explore the provided code, and make start making a plan to implement the required features in three areas: responsive design, accessibility and offline use.
-4. Write code to implement the updates to get this site on its way to being a mobile-ready website.
+On 990 I've done the major surjery to the layour, I've split the width for the map and restaurants, giving them half each, minus the margin between them. Also for the restaurant items I've now changed their containers to make better use of the large width. Still scrollable on the Y axis.
 
-### Note about ES6
+At width larger than 1320px I've made the width static 1320px and added auto margins to the whole body.
 
-Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write. 
+### Images and srcset
 
+Since the given images are 800 x 600 natural size, I did not bother very much with their resize. I've only created 400 x 300 equivalents, which I serve on 1 DPR devices. The fact that I use the images with width between 200 and 400 and that the natural images were not that much large made my decision to only resize for DPR purposes.
 
+## Restaurant details
+
+### Overall style
+
+At the start of width, 320px, I use 100% width for everything. For height, I've applied the same top-down strategy as before, by giving the header and footer fixed css values, then percentages to the 3 containers, map, restaurant and reviews. The last 2 are scrollable on Y.
+
+### Breakpoints
+
+On 620px breakpoint I've split the restaurant and reviews on width, by giving each of them 50% minus their margins. The map still covers 100% of width.
+
+On 990px breakpoint I've made a slightly more intrusive layout change, changing the order of flex items. The restaurant is first now, I've given it 400px width as it does not need more, while giving 100% height to its container. The rest of width I've given to the map and reviews containers, and also made them split the height available, 50-50, minus margins and borders.
+
+Same story on modifying the height of header/footer as before and also to the auto margin for width greater than 1320px.
+
+### Images and srcset
+
+Same story here, 1 DPR gets 400x300 while 2DPR gets 800x600 images with srcset.
+
+## Additional comments
+
+I've added margins where it was needed, betweem <li> tags, containers etc
+
+# Accessibilty
+
+## Improvements
+
+For images, I've added alt attributes to the tags with the name of the restaurant. I did this from the .js files.
+
+I've added the 'navigation' role to the breadcrumbs header in restaurant details page. Still not a big navigation, but it can be extended.
+
+To the links of each restaurant item, I've added an aria-label to make it more explicit when it gets read by screen reader, like 'view details for the restaurant named blabla'.
+
+# Offline experience
+
+## Service worker
+
+I've added a service worker script sw.js in which I am caching at install the most important resources (js, css, html and the json of restaurants).
+
+At the activate event I've added a check for any cache from my app with different version than the current one and delete those.
+
+At the fetch event I've added cache check for the resource. If there is a resource, I will provide that as response. If not, will fetch for it, update the cache with it and also serve it back to the user. These two events are done independently, as the user does not need to wait for page to get into the cache before receiving any response.
 
