@@ -1,5 +1,5 @@
-const staticCacheName = "restaurant-reviews-cache";
-const currentCache = `${staticCacheName}v2`;
+const staticCacheName = 'restaurant-reviews-cache';
+const currentCache = `${staticCacheName}v1`;
 
 self.addEventListener("install", event => {
   event.waitUntil(

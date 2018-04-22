@@ -336,7 +336,7 @@ nav h1 a {
   overflow: hidden;
   padding: 0 20px 20px;
   position: relative;
-  width: calc(100% - 40px);
+  width: calc(100% - 44px);
 }
 #reviews-list li p {
   margin: 0 0 10px;
@@ -435,10 +435,13 @@ nav h1 a {
     width: auto;
     margin-right: 10px;
   }
-  .inside #map-container,
   #map-container {
     width: calc(50% - 5px);
   }
+  .inside #map-container,
+  #reviews-container {
+    width: calc(100% - 410px);
+  }  
   .inside #map-container {
     order: 2;
     height: calc(50% - 5px);
@@ -456,9 +459,8 @@ nav h1 a {
   #restaurants-list li:last-child {
     margin-bottom: 0;
   }
-  #restaurant-container,
-  #reviews-container {
-    width: calc(50% - 10px);
+  #restaurant-container {
+    width: 400px;
   }
   #reviews-container {
     height: calc(50% - 7px);
