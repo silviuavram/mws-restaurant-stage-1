@@ -44,7 +44,7 @@ Same story here, 1 DPR gets 400x300 while 2DPR gets 800x600 images with srcset.
 
 ## Additional comments
 
-I've added margins where it was needed, betweem <li> tags, containers etc
+I've added margins where it was needed, betweem list item tags, containers etc.
 
 # Accessibilty
 
