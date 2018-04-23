@@ -97,7 +97,7 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h2');
+  const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
@@ -145,6 +145,7 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
   const breadcrumb = document.getElementById('breadcrumb');
   const li = document.createElement('li');
   li.innerHTML = restaurant.name;
+  li['aria-current'] = 'page';
   breadcrumb.appendChild(li);
 
   document.documentElement.style.setProperty('--header-height', '131px');
