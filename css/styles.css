@@ -459,9 +459,6 @@ nav h1 a {
   #restaurants-list li:last-child {
     margin-bottom: 0;
   }
-  #restaurant-container {
-    width: 400px;
-  }
   #reviews-container {
     height: calc(50% - 7px);
     order: 3;
@@ -471,6 +468,8 @@ nav h1 a {
     height: calc(100% - 2px);
     order: 1;
     margin-right: 5px;
+    width: 400px;
+    overflow: auto;
   }
   :root {
     --map-container-height: 100%;
