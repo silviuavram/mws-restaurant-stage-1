@@ -1,6 +1,15 @@
 const staticCacheName = 'restaurant-reviews-cache';
 const currentCache = `${staticCacheName}v3`;
-let idbPromise;
+
+const getIdbPromise = () => {
+  if (_idbPromise) {
+    _idbPromise = idb.open('restaurant-reviews', 1);
+  }
+
+  return _idbPromise;
+}
+
+let _idbPromise;
 
 importScripts('./js/idb.js');
 
@@ -22,7 +31,7 @@ self.addEventListener('install', event => {
         ]);
       })
       .then(() => {
-        idbPromise = openIndexDB();
+        _idbPromise = openIndexDB();
       })
       .catch(err => {
         console.log(`install failed with error: ${err}`);
@@ -81,7 +90,7 @@ function fetchAllRestaurants(url) {
 }
 
 function fetchFromIdb() {
-  return idbPromise.then(db => {
+  return getIdbPromise().then(db => {
     if (!db) return null;
 
     const objectStore = db.transaction('restaurants').objectStore('restaurants');
@@ -93,7 +102,7 @@ function fetchFromNetwork(url) {
   return fetch(url)
     .then(response => {
       response.clone().json().then(result => {
-        idbPromise.then(db => {
+        getIdbPromise().then(db => {
           if (!db) return null;
 
           const objectStore = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
@@ -117,7 +126,7 @@ function fetchRestaurant(url) {
 }
 
 function fetchItemFromIdb(id) {
-  return idbPromise.then(db => {
+  return getIdbPromise().then(db => {
     if (!db) return null;
 
     const objectStore = db.transaction('restaurants').objectStore('restaurants');
@@ -129,7 +138,7 @@ function fetchItemFromNetwork(url) {
   return fetch(url)
     .then(response => {
       response.clone().json().then(result => {
-        idbPromise.then(db => {
+        getIdbPromise().then(db => {
           if (!db) return null;
 
           const objectStore = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
