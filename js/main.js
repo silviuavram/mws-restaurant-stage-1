@@ -4,6 +4,23 @@ let restaurants,
 var map
 var markers = []
 
+const observerOptions = {
+  rootMargin: '50px 0px',
+  threshold: 0.01
+};
+
+const handleIntersection = entries => {
+  entries.forEach(entry => {
+    if (entry.intersectionRatio > 0) {
+      const image = entry.target;
+
+      image.srcset = image.dataset.srcset;
+      image.src = image.dataset.src;
+    }
+  })
+}
+const observer = new IntersectionObserver(handleIntersection, observerOptions);
+
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
@@ -151,9 +168,12 @@ createRestaurantHTML = (restaurant) => {
 
   const image = document.createElement('img');
   image.className = 'restaurant-img';
-  image.srcset = DBHelper.imgUrlSetForRestaurant(restaurant);
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  // image.srcset = DBHelper.imgUrlSetForRestaurant(restaurant);
+  // image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.dataset.srcset = DBHelper.imgUrlSetForRestaurant(restaurant);
+  image.dataset.src = DBHelper.imageUrlForRestaurant(restaurant);
   image.alt = restaurant.name;
+  observer.observe(image);
   li.append(image);
 
   const div = document.createElement('div');

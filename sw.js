@@ -1,8 +1,8 @@
 const staticCacheName = 'restaurant-reviews-cache';
-const currentCache = `${staticCacheName}v3`;
+const currentCache = `${staticCacheName}v1`;
 
 const getIdbPromise = () => {
-  if (_idbPromise) {
+  if (!_idbPromise) {
     _idbPromise = idb.open('restaurant-reviews', 1);
   }
 
