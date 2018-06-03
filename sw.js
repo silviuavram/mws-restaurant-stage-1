@@ -1,5 +1,5 @@
 const staticCacheName = 'restaurant-reviews-cache';
-const currentCache = `${staticCacheName}v1`;
+const currentCache = `${staticCacheName}v2`;
 
 const getIdbPromise = () => {
   if (!_idbPromise) {
@@ -84,8 +84,10 @@ function openIndexDB() {
 }
 
 function fetchAllRestaurants(url) {
+  const networkPromise = fetchFromNetwork(url);
+
   return fetchFromIdb().then(restaurants => {
-    return (restaurants && restaurants.length > 0) ? new Response(JSON.stringify(restaurants)) : fetchFromNetwork(url);
+    return restaurants ? new Response(JSON.stringify(restaurants)) : networkPromise;
   });
 }
 
