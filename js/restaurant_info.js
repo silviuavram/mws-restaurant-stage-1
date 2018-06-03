@@ -147,8 +147,6 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
   li.innerHTML = restaurant.name;
   li['aria-current'] = 'page';
   breadcrumb.appendChild(li);
-
-  document.documentElement.style.setProperty('--header-height', '131px');
 }
 
 /**

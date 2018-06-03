@@ -95,10 +95,6 @@ nav {
   text-align: center;
   padding: 10px;
 }
-.inside nav {
-  height: calc(80px - 2 * 10px);
-}
-
 nav h1 {
   margin: auto;
   width: 300px;
@@ -246,10 +242,16 @@ nav h1 a {
 
 /* ====================== Restaurant Details ====================== */
 .inside header {
-  /* position: fixed; */
   top: 0;
   width: 100%;
   z-index: 1000;
+  height: calc(51px + var(--header-height));
+}
+.inside nav {
+  height: calc(0 + var(--header-height) - 2 * 10px);
+}
+.inside #maincontent {
+  height: calc(100% - 51px - var(--header-height) - var(--footer-height) - 2 * var(--footer-padding));
 }
 .inside #map-container {
   background: blue none repeat scroll 0 0;
@@ -478,7 +480,7 @@ nav h1 a {
 }
 
 @media screen and (min-width:1310px) {
-  body {
+  #maincontent {
     width: 1310px;
     margin: auto;
   }
