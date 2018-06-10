@@ -1,16 +1,6 @@
 let restaurant;
 var map;
 
-document.addEventListener('DOMContentLoaded', (event) => {
-  if (!navigator.serviceWorker) return;
-
-  navigator.serviceWorker.register('sw.js').then(reg => {
-    console.log('service worker registered successfully');
-  }).catch(reason => {
-    console.log(`service worker failed to register because of ${reason}.`);
-  })
-});
-
 /**
  * Initialize Google map, called from HTML.
  */

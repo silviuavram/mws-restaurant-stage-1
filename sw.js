@@ -1,5 +1,5 @@
 const staticCacheName = 'restaurant-reviews-cache';
-const currentCache = `${staticCacheName}v2`;
+const currentCache = `${staticCacheName}v1`;
 
 const getIdbPromise = () => {
   if (!_idbPromise) {
@@ -20,14 +20,12 @@ self.addEventListener('install', event => {
       .then(cache => {
         return cache.addAll([
           '/',
+          'restaurant.html',
           'js/dbhelper.js',
           'js/main.js',
           'js/restaurant_info.js',
           'js/idb.js',
-          'index.html',
-          'restaurant.html',
-          'css/styles.css',
-          'data/restaurants.json'
+          'css/styles.css'
         ]);
       })
       .then(() => {
@@ -115,6 +113,9 @@ function fetchFromNetwork(url) {
       });
 
       return response;
+    })
+    .catch(error => {
+      console.log(`error in fetchFromNetwork: ${error}`);
     });
 }
 
