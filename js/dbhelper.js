@@ -1,3 +1,5 @@
+var idb = require('idb');
+
 document.addEventListener('DOMContentLoaded', (event) => {
   if (!navigator.serviceWorker) return;
 
@@ -8,26 +10,110 @@ document.addEventListener('DOMContentLoaded', (event) => {
   })
 });
 
+let _idbPromise;
+
+const getIdbPromise = () => {
+  if (!_idbPromise) {
+    _idbPromise = openIndexDB();
+  }
+
+  return _idbPromise;
+}
+
+const getDatabaseURL = id => {
+  const port = 1337 // Change this to your server port
+  return `http://localhost:${port}/restaurants${id ? `/${id}` : ''}`;
+}
+
+function openIndexDB() {
+  return idb.open('restaurant-reviews', 1, upgradeDb => {
+    var store = upgradeDb.createObjectStore('restaurants', {
+      keyPath: 'id'
+    });
+    store.createIndex('by-date', 'updatedAt');
+  });
+}
+
+function fetchAllRestaurants() {
+  const networkPromise = fetchFromNetwork();
+
+  return fetchFromIdb().then(restaurants => {
+    return restaurants || networkPromise;
+  });
+}
+
+function fetchFromIdb() {
+  return getIdbPromise().then(db => {
+    if (!db) return null;
+
+    const objectStore = db.transaction('restaurants').objectStore('restaurants');
+    return objectStore.index('by-date').getAll();
+  });
+}
+
+function fetchFromNetwork() {
+  return fetch(getDatabaseURL())
+    .then(response => {
+      response.clone().json().then(result => {
+        getIdbPromise().then(db => {
+          if (!db) {
+            return;
+          }
+          const objectStore = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
+          result.forEach(restaurant => {
+            objectStore.put(restaurant);
+          });
+        });;
+      });
+      return response.json();        
+    })
+    .catch(error => {
+      console.log(`error in fetchFromNetwork: ${error}`);
+    });
+}
+
+function fetchRestaurant(id) {
+  return fetchItemFromIdb(id).then(restaurant => {
+    return restaurant || fetchItemFromNetwork(id);
+  });
+}
+
+function fetchItemFromIdb(id) {
+  return getIdbPromise().then(db => {
+    if (!db) return null;
+
+    const objectStore = db.transaction('restaurants').objectStore('restaurants');
+    return objectStore.get(id);
+  });
+}
+
+function fetchItemFromNetwork(id) {
+  return fetch(getDatabaseURL(id))
+    .then(response => {
+      response.clone().json().then(result => {
+        getIdbPromise().then(db => {
+          if (!db) return null;
+
+          const objectStore = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
+          objectStore.put(result);
+        });
+      });
+
+      return response.json();
+    });
+}
+
 /**
  * Common database helper functions.
  */
-class DBHelper {
-
-  /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
-   */
-  static getDatabaseURL(id) {
-    const port = 1337 // Change this to your server port
-    return `http://localhost:${port}/restaurants${id ? `/${id}` : ''}`;
-  }
+module.exports = class DBHelper {
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback, id) {
-    fetch(DBHelper.getDatabaseURL(id))
-    .then(response => response.json())
+    (id ? fetchRestaurant(id) : fetchAllRestaurants())
+    // .then(response => response.json())
     .then(result => {
       callback(null, result);
     }).catch(error => {
