@@ -1,5 +1,5 @@
 const staticCacheName = 'restaurant-reviews-cache';
-const currentCache = `${staticCacheName}v3`;
+const currentCache = `${staticCacheName}v2`;
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -9,15 +9,11 @@ self.addEventListener('install', event => {
         return cache.addAll([
           '/',
           'restaurant.html',
-          'js/dbhelper.js',
-          'js/main.js',
-          'js/restaurant_info.js',
-          'js/idb.js',
+          'dist/js/dbhelper.js',
+          'dist/js/main.js',
+          'dist/js/restaurant_info.js',
           'css/styles.css'
         ]);
-      })
-      .then(() => {
-        _idbPromise = openIndexDB();
       })
       .catch(err => {
         console.log(`install failed with error: ${err}`);
