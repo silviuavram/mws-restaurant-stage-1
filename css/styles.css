@@ -346,6 +346,23 @@ nav h1 a {
 #restaurant-hours td {
   color: #666;
 }
+#review-submit-container {
+  margin: 0 10px;
+}
+#review-submit-container label {
+  display: block;
+}
+#review-submit-container textarea {
+  width: 100%;
+  height: 60px;
+  max-width: 400px;
+}
+.invalid {
+  border: 5px solid #ffdddd;
+}
+#review-submit-button {
+  width: 70px;
+}
 
 @media screen and (max-width: 409px) {
   #restaurants-list li {

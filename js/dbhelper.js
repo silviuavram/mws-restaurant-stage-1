@@ -1,5 +1,7 @@
 var idb = require('idb');
 
+const port = 1337 // Change this to your server port
+
 document.addEventListener('DOMContentLoaded', (event) => {
   if (!navigator.serviceWorker) return;
 
@@ -20,29 +22,121 @@ const getIdbPromise = () => {
   return _idbPromise;
 }
 
-const getDatabaseURL = id => {
-  const port = 1337 // Change this to your server port
+const getRestaurantsDatabaseURL = id => {
   return `http://localhost:${port}/restaurants${id ? `/${id}` : ''}`;
 }
 
+const getReviewsDatabaseURL = id => {
+  return `http://localhost:${port}/reviews${id ? `/?restaurant_id=${id}` : ''}`;
+}
+
 function openIndexDB() {
+  const objectStores = ['restaurants', 'reviews', 'pending-reviews'];
+
   return idb.open('restaurant-reviews', 1, upgradeDb => {
-    var store = upgradeDb.createObjectStore('restaurants', {
-      keyPath: 'id'
+    objectStores.forEach(objectStore => {
+      var store = upgradeDb.createObjectStore(objectStore, {
+        keyPath: 'id'
+      });
+      store.createIndex('by-date', 'updatedAt');
     });
-    store.createIndex('by-date', 'updatedAt');
   });
+}
+
+function publishReview(review) {
+  return fetch(getReviewsDatabaseURL(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8'
+    },
+    body: JSON.stringify(review)
+  }).catch(error => {
+    console.error(`Failed to publish review with error: ${error}`);
+    return savePendingReview(review);
+  });
+}
+
+function savePendingReview(review) {
+  return getIdbPromise().then(db => {
+    if (!db) return null;
+
+    const objectStore = db.transaction('pending-reviews', 'readwrite').objectStore('pending-reviews');
+    return objectStore.count().then(count => {
+      review.id = count;
+      return objectStore.put(review);
+    });
+  });
+}
+
+function fetchAndPublishPendingReviews(id) {
+  return getIdbPromise().then(db => {
+    if (!db) return null;
+    const pendingReviews = [];
+
+    const objectStore = db.transaction('pending-reviews', 'readwrite').objectStore('pending-reviews');
+    return objectStore.getAll().then(reviews => {
+      reviews.forEach(review => {
+        if (review.restaurant_id === id) {
+          pendingReviews.push(review);
+        }
+        review.id = undefined; // needed id for idb, removing it when sending to server.
+        publishReview(review);
+      })
+      return objectStore.clear();
+    })
+      .then(() => {
+        return pendingReviews;
+      });
+  });
+}
+
+function fetchReviews(id) {
+  const networkPromise = fetchReviewsFromNetwork(id);
+
+  return fetchReviewsFromIdb(id).then(reviews => {
+    return reviews.length > 0 ? reviews : networkPromise;
+  });
+}
+
+function fetchReviewsFromIdb(id) {
+  return getIdbPromise().then(db => {
+    if (!db) return null;
+
+    const objectStore = db.transaction('reviews').objectStore('reviews');
+    return objectStore.index('by-date').getAll().then(reviews => {
+      return reviews.filter(review => review.restaurant_id === id);
+    });
+  });
+}
+
+function fetchReviewsFromNetwork(id) {
+  return fetch(getReviewsDatabaseURL(id))
+    .then(response => {
+      response.clone().json().then(result => {
+        getIdbPromise().then(db => {
+          if (!db) return null;
+
+          const objectStore = db.transaction('reviews', 'readwrite').objectStore('reviews');
+          result.forEach(review => {
+            objectStore.put(review);
+          });
+        });
+      });
+
+      return response.json();
+    })
+    .catch(error => console.error(`Failed to fetch reviews for restaurant ${id} with error ${error}`));
 }
 
 function fetchAllRestaurants() {
-  const networkPromise = fetchFromNetwork();
+  const networkPromise = fetchAllRestaurantsFromNetwork();
 
-  return fetchFromIdb().then(restaurants => {
-    return restaurants || networkPromise;
+  return fetchAllRestaurantsFromIdb().then(restaurants => {
+    return restaurants.length > 0 ? restaurants : networkPromise;
   });
 }
 
-function fetchFromIdb() {
+function fetchAllRestaurantsFromIdb() {
   return getIdbPromise().then(db => {
     if (!db) return null;
 
@@ -51,8 +145,8 @@ function fetchFromIdb() {
   });
 }
 
-function fetchFromNetwork() {
-  return fetch(getDatabaseURL())
+function fetchAllRestaurantsFromNetwork() {
+  return fetch(getRestaurantsDatabaseURL())
     .then(response => {
       response.clone().json().then(result => {
         getIdbPromise().then(db => {
@@ -65,30 +159,30 @@ function fetchFromNetwork() {
           });
         });;
       });
-      return response.json();        
+      return response.json();
     })
-    .catch(error => {
-      console.log(`error in fetchFromNetwork: ${error}`);
-    });
+    .catch(error => console.error(`Failed to fetch all restaurants with error ${error}`));
 }
 
 function fetchRestaurant(id) {
-  return fetchItemFromIdb(id).then(restaurant => {
-    return restaurant || fetchItemFromNetwork(id);
+  const networkPromise = fetchRestaurantFromNetwork(id);
+
+  return fetchRestaurantFromIdb(id).then(restaurant => {
+    return restaurant || networkPromise;
   });
 }
 
-function fetchItemFromIdb(id) {
+function fetchRestaurantFromIdb(id) {
   return getIdbPromise().then(db => {
     if (!db) return null;
 
     const objectStore = db.transaction('restaurants').objectStore('restaurants');
-    return objectStore.get(id);
+    return objectStore.get(parseInt(id));
   });
 }
 
-function fetchItemFromNetwork(id) {
-  return fetch(getDatabaseURL(id))
+function fetchRestaurantFromNetwork(id) {
+  return fetch(getRestaurantsDatabaseURL(id))
     .then(response => {
       response.clone().json().then(result => {
         getIdbPromise().then(db => {
@@ -100,7 +194,8 @@ function fetchItemFromNetwork(id) {
       });
 
       return response.json();
-    });
+    })
+    .catch(error => console.error(`Failed to fetch restaurant id ${id} with error ${error}`));
 }
 
 /**
@@ -113,12 +208,12 @@ module.exports = class DBHelper {
    */
   static fetchRestaurants(callback, id) {
     (id ? fetchRestaurant(id) : fetchAllRestaurants())
-    // .then(response => response.json())
-    .then(result => {
-      callback(null, result);
-    }).catch(error => {
-      callback(error, null);
-    });
+      // .then(response => response.json())
+      .then(result => {
+        callback(null, result);
+      }).catch(error => {
+        callback(error, null);
+      });
   }
 
   /**
@@ -128,6 +223,24 @@ module.exports = class DBHelper {
     DBHelper.fetchRestaurants(callback, id);
   }
 
+  /**
+   * Fetch reviews by the restaurant's ID.
+   */
+  static fetchReviewsForRestaurant(id, callback) {
+    fetchReviews(id).then(result => {
+      // in case we have offline reviews saved, show them too and try to publish them.
+      fetchAndPublishPendingReviews(id).then(result2 => {
+        callback(result.concat(result2));
+      });
+    });
+  }
+
+  /**
+   * Publishes a review on the server.
+   */
+  static publishReviewForRestaurant(review) {
+    publishReview(review);
+  }
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
    */
@@ -244,14 +357,15 @@ module.exports = class DBHelper {
   /**
    * Map marker for a restaurant.
    */
-   static mapMarkerForRestaurant(restaurant, map) {
+  static mapMarkerForRestaurant(restaurant, map) {
     // https://leafletjs.com/reference-1.3.0.html#marker  
     const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
-      {title: restaurant.name,
-      alt: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant)
+      {
+        title: restaurant.name,
+        alt: restaurant.name,
+        url: DBHelper.urlForRestaurant(restaurant)
       })
-      marker.addTo(map);
+    marker.addTo(map);
     return marker;
   }
 

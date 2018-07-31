@@ -34,17 +34,20 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
+  const requestIsGet = event.request.method === 'GET';
+  event.respondWith(!requestIsGet ? fetch(event.request) :
     caches.match(event.request).then(response => {
-      return response || fetch(event.request).then(response => {
-          const clone = response.clone();
-          caches.open(currentCache).then(cache => {
-            cache.put(event.request, clone).catch(err => {
-              console.log(`error caching ${event.request.url} with err: ${err}`);
-            });
+      const networkFetch = fetch(event.request).then(response => {
+        const clone = response.clone();
+        caches.open(currentCache).then(cache => {
+          cache.put(event.request, clone).catch(err => {
+            console.log(`error caching ${event.request.url} with err: ${err}`);
           });
-          return response;
         });
+        return response;
+      });
+
+      return response || networkFetch;
     })
   );
 });

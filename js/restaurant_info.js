@@ -84,8 +84,11 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
+
+  DBHelper.fetchReviewsForRestaurant(restaurant.id, reviews => {
+    // fill reviews
+    fillReviewsHTML(reviews);
+  });
 }
 
 /**
@@ -113,21 +116,20 @@ const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hour
  */
 const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
-  const title = document.createElement('h3');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
 
   if (!reviews) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
+    noReviews.id = 'no-reviews-text';
     container.appendChild(noReviews);
-    return;
+  } else {
+    const ul = document.getElementById('reviews-list');
+    reviews.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
+    });
+    container.appendChild(ul);
   }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
+  addSendReviewCallback();
 }
 
 /**
@@ -140,7 +142,9 @@ const createReviewHTML = (review) => {
   li.appendChild(name);
 
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  const reviewDate = new Date(review.updatedAt);
+  const dateString = `${reviewDate.getUTCFullYear()}/${reviewDate.getUTCMonth() + 1}/${reviewDate.getUTCDate()} ${reviewDate.getUTCHours()}:${reviewDate.getUTCMinutes()}`;
+  date.innerHTML = dateString;
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -179,4 +183,47 @@ const getParameterByName = (name, url) => {
   if (!results[2])
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+const addSendReviewCallback = () => {
+  const button = document.getElementById('review-submit-button');
+  button.addEventListener('click', event => {
+    event.preventDefault();
+
+    const nameElement = document.getElementById('review-submit-name');
+    const name = nameElement.value;
+    if (name === '') {
+      nameElement.classList.add('invalid');
+      return;
+    } else {
+      nameElement.classList.remove('invalid');
+    }
+    const commentsElement = document.getElementById('review-submit-comment');
+    const comments = commentsElement.value;
+    if (comments === '') {
+      commentsElement.classList.add('invalid');
+      return;
+    } else {
+      nameElement.classList.remove('invalid');
+    }
+    const ratingElement = document.getElementById('review-submit-rating');
+
+    const ul = document.getElementById('reviews-list');
+    nameElement.value = '';
+    commentsElement.value = '';
+    ratingElement.selectedIndex = ratingElement.options.length - 1;
+    const review = {
+      name,
+      rating: ratingElement.options[ratingElement.selectedIndex].value,
+      updatedAt: new Date(),
+      comments,
+      restaurant_id: self.restaurant.id
+    };
+    ul.appendChild(createReviewHTML(review));
+    const noReviewsText = document.getElementById('no-reviews-text');
+    if (noReviewsText) {
+      noReviewsText.remove();
+    }
+    DBHelper.publishReviewForRestaurant(review);
+  });
 }
