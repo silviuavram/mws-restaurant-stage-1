@@ -2,6 +2,8 @@
 ---
 #### _Three Stage Course Material Project - Restaurant Reviews_
 
+# Project part 1
+
 ## Responsiveness and styling
 
 ### Restaurants list
@@ -66,6 +68,8 @@ At the activate event I've added a check for any cache from my app with differen
 
 At the fetch event I've added cache check for the resource. If there is a resource, I will provide that as response. If not, will fetch for it, update the cache with it and also serve it back to the user. These two events are done independently, as the user does not need to wait for page to get into the cache before receiving any response.
 
+# Project part 2
+
 ### IndexedDB storing
 
 I updated the Service Worker script to handle the IndexedDB caching as I wanted to keep all the caching feature contained in sw.js for now. I have created the database, objectstore and an index after caching the basic files in the 'install' event. Then I stored the promise variable, and in case the reference gets lost, I created a getter method to return the promise or open a new connection with the database and then return the promise.
@@ -81,6 +85,8 @@ I used importScripts built-in function to import the idb.js file into my project
 After running Lighthouse I got some pretty random scores, especially on Performance. Also for the Progressive Web App score, the tips I got are not really about what I learned in the project.
 
 I have implemented a Performance suggestion by lazy loading images using the IntersectionObserver built in library. I have added the functionality to check if image is in viewport and after that render it. I did so by adding a callback to the intersection observer. If the image got close to the viewport, I would change src and srcset with the values from data.src and data.srcset and by doing this they would load.
+
+# Project part 3
 
 ## Reviews handling
 
