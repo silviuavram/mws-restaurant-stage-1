@@ -81,3 +81,21 @@ I used importScripts built-in function to import the idb.js file into my project
 After running Lighthouse I got some pretty random scores, especially on Performance. Also for the Progressive Web App score, the tips I got are not really about what I learned in the project.
 
 I have implemented a Performance suggestion by lazy loading images using the IntersectionObserver built in library. I have added the functionality to check if image is in viewport and after that render it. I did so by adding a callback to the intersection observer. If the image got close to the viewport, I would change src and srcset with the values from data.src and data.srcset and by doing this they would load.
+
+# Reviews handling
+
+## Publishing reviews
+
+Updated the html and css to add the form needed to submit reviews. From the js, I added a onClick listener to the submit button which triggered the submit handler. I handled the submit process by getting the data from the form and building a review object from it. I have added the newly created review to the html and sent it to the DBHandler for server posting.
+
+## Deferring reviews
+
+The DBHelper code was structured as follows: once the review is received, it is sent to the server using a modified for POST fetch event. In order to ensure the offline experience, I have created another object store in IndexDB, 'reviews', which gets updated when reviews are retrieved from the server. Also, to defer the updates, I also created another object store, which I update every time the POST fetch event fails. Calling a save function in the catch() ensured that I saved every review that did not get to the server successfuly.
+
+Every time I try to fetch the reviews from the server, I also try to send the locally saved reviews to the server. Process is as follows: 1. Send request to the server for reviews. 2. Send request to the indexDB for the saved reviews. 3. Send request to the indexDB for the locally saved reviews. 4. Publish the locally saved reviews to the server. This way, I covered all the cases, ensuring I get reviews from the idb in case there is no internet, also getting the locally saved reviews along with the ones sent by the server, publishing the local reviews to the server if connection is restored, and when restored the idb will get updated with the reviews from server + the local reviews now sent to the server, if there were any.
+
+I tried first by adding event handlers to 'online' and 'offline' and performing similar operations on the callbacks, but for some reason it did not work (maybe they are not available on Chrome).
+
+## Future improvements
+
+There is a lot of duplicated code in the DBHelper idb and fetching methods. I just did it this way for safety reasons, but it can be improved and reduce the number of lines. Also I did not show the dates in locally converted date. Also there are many style and other coding improvements to be done, but overall it looks ok and it works, which, for now, is all that matters.
