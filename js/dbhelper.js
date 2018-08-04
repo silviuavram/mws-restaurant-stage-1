@@ -2,10 +2,13 @@ var idb = require('idb');
 
 const port = 1337 // Change this to your server port
 
+let swReg;
+
 document.addEventListener('DOMContentLoaded', (event) => {
   if (!navigator.serviceWorker) return;
 
   navigator.serviceWorker.register('sw.js').then(reg => {
+    swReg = reg;
     console.log('service worker registered successfully');
   }).catch(reason => {
     console.log(`service worker failed to register because of ${reason}.`);
@@ -30,6 +33,10 @@ const getReviewsDatabaseURL = id => {
   return `http://localhost:${port}/reviews${id ? `/?restaurant_id=${id}` : ''}`;
 }
 
+const getFavoriteDatabaseURL = (id, isFavorite) => {
+  return `http://localhost:1337/restaurants/${id}/?is_favorite=${isFavorite}`;
+}
+
 function openIndexDB() {
   const objectStores = ['restaurants', 'reviews', 'pending-reviews'];
 
@@ -41,6 +48,25 @@ function openIndexDB() {
       store.createIndex('by-date', 'updatedAt');
     });
   });
+}
+
+function setRestaurantFavoriteStatus(restaurant) {
+  const isFavorite = restaurant.is_favorite;
+  const id = restaurant.id;
+
+  return fetch(getFavoriteDatabaseURL(id, isFavorite), {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8'
+    }
+  })
+    .then(() => getIdbPromise())
+    .then(db => {
+      if (!db) return null;
+
+      const objectStore = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
+      return objectStore.put(restaurant);
+    });
 }
 
 function publishReview(review) {
@@ -68,25 +94,30 @@ function savePendingReview(review) {
   });
 }
 
-function fetchAndPublishPendingReviews(id) {
+function fetchPendingReviews(id) {
   return getIdbPromise().then(db => {
     if (!db) return null;
-    const pendingReviews = [];
+
+    const objectStore = db.transaction('pending-reviews', 'readwrite').objectStore('pending-reviews');
+    return objectStore.getAll().then(reviews => {
+      return reviews.filter(review => review.restaurant_id === id);
+    });
+  });
+}
+
+
+function publishPendingReviews() {
+  return getIdbPromise().then(db => {
+    if (!db) return null;
 
     const objectStore = db.transaction('pending-reviews', 'readwrite').objectStore('pending-reviews');
     return objectStore.getAll().then(reviews => {
       reviews.forEach(review => {
-        if (review.restaurant_id === id) {
-          pendingReviews.push(review);
-        }
         review.id = undefined; // needed id for idb, removing it when sending to server.
         publishReview(review);
       })
       return objectStore.clear();
-    })
-      .then(() => {
-        return pendingReviews;
-      });
+    });
   });
 }
 
@@ -229,17 +260,22 @@ module.exports = class DBHelper {
   static fetchReviewsForRestaurant(id, callback) {
     fetchReviews(id).then(result => {
       // in case we have offline reviews saved, show them too and try to publish them.
-      fetchAndPublishPendingReviews(id).then(result2 => {
+      fetchPendingReviews(id).then(result2 => {
         callback(result.concat(result2));
       });
     });
+  }
+
+  static setRestaurantFavoriteStatus(restaurant) {
+    setRestaurantFavoriteStatus(restaurant);
   }
 
   /**
    * Publishes a review on the server.
    */
   static publishReviewForRestaurant(review) {
-    publishReview(review);
+    savePendingReview(review)
+      .then(() => navigator.serviceWorker ? swReg.sync.register('publishReviews') : publishPendingReviews());
   }
   /**
    * Fetch restaurants by a cuisine type with proper error handling.

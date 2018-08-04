@@ -189,11 +189,30 @@ const createRestaurantHTML = (restaurant) => {
   address.innerHTML = restaurant.address;
   div.append(address);
 
+  const moreAndFavContainer = document.createElement('div');
+  moreAndFavContainer.classList.add('more-fav-container');
   const more = document.createElement('a');
   more.innerHTML = 'View Details';
   more.href = DBHelper.urlForRestaurant(restaurant);
   more.setAttribute('aria-label', `View details of ${restaurant.name}`);
-  div.append(more);
+  moreAndFavContainer.append(more);
+  const favIcon = document.createElement('span');
+  favIcon.classList.add('glyphicon', `glyphicon-heart${restaurant.is_favorite === 'true' ? '' : '-empty'}`, 'fav-icon');
+  favIcon.setAttribute('tabindex', '0');
+  favIcon.addEventListener('click', event => {
+    if (restaurant.is_favorite === 'true') {
+      restaurant.is_favorite = 'false';
+      favIcon.classList.remove('glyphicon-heart');
+      favIcon.classList.add('glyphicon-heart-empty');
+    } else {
+      restaurant.is_favorite = 'true';
+      favIcon.classList.remove('glyphicon-heart-empty');
+      favIcon.classList.add('glyphicon-heart');
+    }
+    DBHelper.setRestaurantFavoriteStatus(restaurant);
+  });
+  moreAndFavContainer.append(favIcon);
+  div.append(moreAndFavContainer);
 
   li.append(div);
 

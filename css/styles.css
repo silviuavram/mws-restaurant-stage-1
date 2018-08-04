@@ -239,6 +239,15 @@ nav h1 a {
   text-decoration: none;
   text-transform: uppercase;
 }
+.more-fav-container {
+  display: flex;
+  align-items: flex-end
+}
+.fav-icon {
+  font-size: 40px;
+  margin: 15px 0 0 15px;
+  color: #11418E;
+}
 
 /* ====================== Restaurant Details ====================== */
 .inside header {
