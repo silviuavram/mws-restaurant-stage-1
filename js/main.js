@@ -170,7 +170,7 @@ const createRestaurantHTML = (restaurant) => {
   image.className = 'restaurant-img';
   image.dataset.srcset = DBHelper.imgUrlSetForRestaurant(restaurant);
   image.dataset.src = DBHelper.imageUrlForRestaurant(restaurant);
-  image.alt = restaurant.name;
+  image.alt = `An image of ${restaurant.name}`;
   observer.observe(image);
   li.append(image);
 

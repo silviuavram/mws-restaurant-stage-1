@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
 const browserify = require('gulp-browserify');
+const serve = require('gulp-serve')
 
 const jsSourcePath = 'js/**/*.js';
 
@@ -20,3 +21,8 @@ gulp.task('scripts', () => {
     .on('error', er => console.log(er))
     .pipe(gulp.dest('./dist/js'));
 });
+
+gulp.task('serve', serve({
+  root: ['./'],
+  port: 8000,
+}));
